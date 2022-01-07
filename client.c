@@ -39,70 +39,78 @@ int	parse_pid(char *str)
 	return (pid);
 }
 
-void	nothing(int sig)
+void	sig_handler(int sig)
 {
-	(void) sig;
-}
-
-void	end(int sig)
-{
-	(void) sig;
-	write (1, "Message recieving accepted\n", 27);
-	exit(0);
-}
-
-int	main(int argc, char **argv)
-{
-	int	pid;
-	char ch;
-	int	i;
-	int	bit_cnt;
-	int	bit;
-	int	kill_code;
-	int	sig;
-
-	ch = 0;
-	i = 0;
-	bit_cnt = 7;
-	bit = 0;
-	if (argc != 3)
+	if (sig == SIGUSR2)
 	{
-		write(1, "Please specify 1-arg PID and 2-arg string to send\n", 50);
-		exit(1);
+		write (1, "Message recieving accepted\n", 27);
+		exit(0);
 	}
-	pid = 0;
-	pid = parse_pid(argv[1]);
-	signal(SIGUSR1, nothing);
-	signal(SIGUSR2, end);
-	while (argv[2][i])
+}
+
+int	get_sig(char c, int bit_cnt)
+{
+	int	sig;
+	int	bit;
+
+	c >>= bit_cnt;
+	bit = c & 1;
+	if (bit == 0)
+		sig = SIGUSR1;
+	else if (bit == 1)
+		sig = SIGUSR2;
+	return (sig);
+}
+
+
+void	send_msg(char *str, int pid, int bit_cnt)
+{
+	int		i;
+	int		sig;
+	int		kill_code;
+
+	i = 0;
+	while (str[i])
 	{
 		while (bit_cnt >= 0)
 		{
-			ch = argv[2][i];
-			ch >>= bit_cnt;
-			bit = ch & 1;
-			if (bit == 0)
-				sig = SIGUSR1;
-			else if (bit == 1)
-				sig = SIGUSR2;
-			
+			sig = get_sig(str[i], bit_cnt);
+			bit_cnt--;
 			kill_code = kill(pid, sig);
+			sleep(2);
 			if (kill_code == -1)
 			{
 				write(1, "can not send signal, please check PID\n", 38);
 				exit(1);
 			}
-			bit_cnt--;
-			pause();
 		}
 		bit_cnt = 7;
 		i++;
 	}
+}
+
+int	main(int argc, char **argv)
+{
+	int	pid;
+	int bit_cnt;
+
+	bit_cnt = 7;
+	if (argc != 3)
+	{
+		write(1, "Please specify 1-arg PID and 2-arg string to send\n", 50);
+		exit(1);
+	}
+	pid = parse_pid(argv[1]);
+	signal(SIGUSR1, sig_handler);
+	signal(SIGUSR2, sig_handler);
+	send_msg(argv[2], pid, bit_cnt);
+	send_msg("\n", pid, bit_cnt);
 	while (bit_cnt >= 0)
 	{
 		kill(pid, SIGUSR1);
 		pause();
 		bit_cnt--;
 	}
-	pause();
+	write(1, "something wrong, cant get accepting\n", 36);
+	return(1);
 }

@@ -40,7 +40,6 @@ void	sig_handler(int sig, siginfo_t *info, void *context)
 			write(1, &myinfo.c, 1);
 		myinfo.byte = 0;
 	}
-	usleep(10);
 	kill(info->si_pid, SIGUSR1);
 }
 
@@ -55,6 +54,6 @@ int	main(void)
 	sa.sa_sigaction = sig_handler;
 	sigaction(SIGUSR1, &sa, NULL);
 	sigaction(SIGUSR2, &sa, NULL);
-	while (1 == 1)
+	while (1)
 		pause();
 }
