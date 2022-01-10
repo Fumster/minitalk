@@ -6,7 +6,7 @@
 /*   By: fchrysta <marvin@42.fr>                    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/01/03 14:07:35 by fchrysta          #+#    #+#             */
-/*   Updated: 2022/01/03 16:01:43 by fchrysta         ###   ########.fr       */
+/*   Updated: 2022/01/10 21:20:37 by fchrysta         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -14,39 +14,41 @@
 
 void	write_byte(int sig)
 {		
-	if (sig == 10)
+	if (sig == SIGUSR1)
 	{
-		myinfo.c <<= 1;
-		myinfo.byte++;
+		g_myinfo.c <<= 1;
+		g_myinfo.byte++;
 	}
-	else if(sig == 12)
+	else if (sig == SIGUSR2)
 	{
-		myinfo.c <<= 1;
-		myinfo.c += 1;
-		myinfo.byte++;
+		g_myinfo.c <<= 1;
+		g_myinfo.c += 1;
+		g_myinfo.byte++;
 	}
 }
 
 void	sig_handler(int sig, siginfo_t *info, void *context)
 {
 	(void) context;
-
 	write_byte(sig);
-	if (myinfo.byte == 8)
+	if (g_myinfo.byte == 8)
 	{
-		if (myinfo.c == 0)
+		if (g_myinfo.c == 0)
+		{
 			kill(info->si_pid, SIGUSR2);
+		}
 		else
-			write(1, &myinfo.c, 1);
-		myinfo.byte = 0;
+			write(1, &g_myinfo.c, 1);
+		g_myinfo.byte = 0;
 	}
+	usleep(85);
 	kill(info->si_pid, SIGUSR1);
 }
 
 int	main(void)
 {
 	struct sigaction	sa;
-	int a;
+	int					a;
 
 	a = getpid();
 	ft_printf("pid is - %d\n", a);

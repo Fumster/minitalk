@@ -6,7 +6,7 @@
 /*   By: fchrysta <marvin@42.fr>                    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/01/03 14:07:48 by fchrysta          #+#    #+#             */
-/*   Updated: 2022/01/03 14:45:51 by fchrysta         ###   ########.fr       */
+/*   Updated: 2022/01/10 21:06:01 by fchrysta         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -25,16 +25,16 @@ int	parse_pid(char *str)
 	{
 		if (str[i] < 48 || str[i] > 57)
 		{
-			write(1,"Please check PID, it can contain numbers only\n", 46);
-			exit(1);
+			write (1, "Please check PID, it can contain numbers only\n", 46);
+			exit (1);
 		}
 		pid = (pid * 10) + (str[i] - 48);
 		i++;
 	}
 	if (pid <= 0)
 	{
-		write(1,"Please check PID, it must be above zero\n", 40);
-		exit(1);
+		write (1, "Please check PID, it must be above zero\n", 40);
+		exit (1);
 	}
 	return (pid);
 }
@@ -53,6 +53,8 @@ int	get_sig(char c, int bit_cnt)
 	int	sig;
 	int	bit;
 
+	bit = 0;
+	sig = 0;
 	c >>= bit_cnt;
 	bit = c & 1;
 	if (bit == 0)
@@ -61,7 +63,6 @@ int	get_sig(char c, int bit_cnt)
 		sig = SIGUSR2;
 	return (sig);
 }
-
 
 void	send_msg(char *str, int pid, int bit_cnt)
 {
@@ -77,7 +78,7 @@ void	send_msg(char *str, int pid, int bit_cnt)
 			sig = get_sig(str[i], bit_cnt);
 			bit_cnt--;
 			kill_code = kill(pid, sig);
-			sleep(2);
+			sleep(1);
 			if (kill_code == -1)
 			{
 				write(1, "can not send signal, please check PID\n", 38);
@@ -92,7 +93,7 @@ void	send_msg(char *str, int pid, int bit_cnt)
 int	main(int argc, char **argv)
 {
 	int	pid;
-	int bit_cnt;
+	int	bit_cnt;
 
 	bit_cnt = 7;
 	if (argc != 3)
@@ -108,9 +109,9 @@ int	main(int argc, char **argv)
 	while (bit_cnt >= 0)
 	{
 		kill(pid, SIGUSR1);
-		pause();
+		sleep(1);
 		bit_cnt--;
 	}
-	write(1, "something wrong, cant get accepting\n", 36);
-	return(1);
+	write (1, "something wrong, cant get accepting\n", 36);
+	return (1);
 }
