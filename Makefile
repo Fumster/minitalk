@@ -6,7 +6,7 @@
 #    By: fchrysta <marvin@42.fr>                    +#+  +:+       +#+         #
 #                                                 +#+#+#+#+#+   +#+            #
 #    Created: 2021/12/13 20:05:23 by fchrysta          #+#    #+#              #
-#    Updated: 2021/12/13 21:04:05 by fchrysta         ###   ########.fr        #
+#    Updated: 2022/01/11 20:53:45 by fchrysta         ###   ########.fr        #
 #                                                                              #
 # **************************************************************************** #
 
@@ -16,7 +16,7 @@ HEADER =		minitalk.h
 CC		=		gcc
 NAME_SRV =		server
 NAME_CLT =		client
-LIB =			libftprintf.a
+LIB =			./ft_printf/libftprintf.a
 OBJECTS_SRV	=	$(SOURCES_SRV:.c=.o)
 OBJECTS_CLT	=	$(SOURCES_CLT:.c=.o)
 FLAGS =			-Wall -Wextra -Werror
@@ -24,10 +24,10 @@ INCLUDES =		-L./ft_printf -lftprintf
 
 .PHONY: all re clean fclean
 
-all	:			$(NAME_SRV) $(NAME_CLT) $(LIB)
+all	:			lib $(NAME_SRV) $(NAME_CLT)
 
 
-$(LIB) :
+lib :
 				@make -C ft_printf
 
 $(NAME_SRV)	:	$(OBJECTS_SRV) $(LIB)
